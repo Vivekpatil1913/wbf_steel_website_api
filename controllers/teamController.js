@@ -277,6 +277,29 @@ exports.updateTeamMember = async (req, res) => {
 
 
 // Get all team members
+exports.getWebTeamMembers = async (req, res) => {
+  try {
+    const teamMembers = await Team.findAll({ 
+      where: { isDelete: 0, isActive:1 },
+      order: [['position_no', 'ASC']] // Sort by position_no
+    });
+
+    const baseUrl = `${process.env.SERVER_PATH}`;
+        const teamMembersWithBaseUrl = teamMembers.map(member => ({
+      ...member.toJSON(),
+      img: member.img ? baseUrl + member.img.replace(/\\/g, '/') : null,
+    }));
+
+    return apiResponse.successResponseWithData(
+      res,
+      'Team members retrieved successfully',
+      teamMembersWithBaseUrl
+    );
+  } catch (error) {
+    console.error('Get team members failed', error);
+    return apiResponse.ErrorResponse(res, 'Get team members failed');
+  }
+};
 exports.getTeamMembers = async (req, res) => {
   try {
     const teamMembers = await Team.findAll({ 
@@ -300,7 +323,6 @@ exports.getTeamMembers = async (req, res) => {
     return apiResponse.ErrorResponse(res, 'Get team members failed');
   }
 };
-
 // Toggle the active status of a team member
 exports.isActiveStatus = async (req, res) => {
   try {

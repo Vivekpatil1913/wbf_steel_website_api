@@ -59,7 +59,27 @@ exports.getInfrastructure = async (req, res) => {
     return apiResponse.ErrorResponse(res, 'Get Infrastructure failed');
   }
 };
+exports.getInfrastructureWebsite = async (req, res) => {
+  try {
+    const infrastructure = await Infrastructure.findAll({ where: { isDelete: 0, isActive: 1 } });
+    
+    // Base URL for images
+    const baseUrl = `${process.env.SERVER_PATH}`; // Adjust according to your setup
+    console.log("baseUrl....", baseUrl);
+    const infrastructureWithBaseUrl = infrastructure.map(infrastructure => {
+      console.log("infrastructure.img", infrastructure.img);
+      return {
+        ...infrastructure.toJSON(), // Convert Sequelize instance to plain object
+        img: infrastructure.img ? baseUrl + infrastructure.img.replace(/\\/g, '/') : null 
+      };
+    });
 
+    return apiResponse.successResponseWithData(res, 'Infrastructure retrieved successfully', infrastructureWithBaseUrl);
+  } catch (error) {
+    console.error('Get Infrastructure failed', error);
+    return apiResponse.ErrorResponse(res, 'Get Infrastructure failed');
+  }
+};
 exports.isActiveStatus = async (req, res) => {
   try {
     const { id } = req.params;

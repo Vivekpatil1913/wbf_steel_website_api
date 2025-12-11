@@ -225,7 +225,7 @@ exports.updateProjectDetails = async (req, res) => {
 
 exports.getProjectDetails = async (req, res) => {
   try {
-    const ProjectDetails1 = await ProjectDetails.findAll({ where: { isDelete: false } });
+    const ProjectDetails1 = await ProjectDetails.findAll({ where: { isDelete: false, isActive:true } });
     
     // Base URL for images
     const baseUrl = `${process.env.SERVER_PATH}`; // Adjust according to your setup
@@ -242,6 +242,46 @@ exports.getProjectDetails = async (req, res) => {
   } catch (error) {
     console.error('Get Project Details failed', error);
     return apiResponse.ErrorResponse(res, 'Get Project Details failed');
+  }
+};
+exports.getProjectDetailsHomePageProjectDisplay = async (req, res) => {
+  try {
+    // Get only last record per category
+    const lastRecords = await ProjectDetails.findAll({
+      attributes: [
+        'project_category_id',
+        'project_category',
+        [sequelize.fn('MAX', sequelize.col('id')), 'id']
+      ],
+      where: { isDelete: false, isActive: true },
+      group: ['project_category_id']
+    });
+
+    // Fetch full record details from MAX(id)
+    const result = [];
+    for (const item of lastRecords) {
+      const record = await ProjectDetails.findOne({
+        where: { id: item.id }
+      });
+
+      if (record) {
+        const baseUrl = `${process.env.SERVER_PATH}`;
+        result.push({
+          ...record.toJSON(),
+          img: record.img ? baseUrl + record.img.replace(/\\/g, '/') : null
+        });
+      }
+    }
+
+    return apiResponse.successResponseWithData(
+      res,
+      "Latest project details per category",
+      result
+    );
+
+  } catch (error) {
+    console.error("error", error);
+    return apiResponse.ErrorResponse(res, "Get Failed");
   }
 };
 

@@ -86,7 +86,35 @@ exports.getTestimonials = async (req, res) => {
     return apiResponse.ErrorResponse(res, "Get testimonials failed");
   }
 };
+exports.getWebTestimonials = async (req, res) => {
+  try {
+    const testimonials = await Testimonial.findAll({
+      where: { isDelete: 0, isActive:1},
+    });
 
+    // Base URL for images
+    const baseUrl = `${process.env.SERVER_PATH}`;
+        console.log("baseUrl....", baseUrl);
+    const testimonialsWithBaseUrl = testimonials.map((testimonial) => {
+      console.log("testimonial.img", testimonial.img);
+      return {
+        ...testimonial.toJSON(), // Convert Sequelize instance to plain object
+        img: testimonial.img
+          ? baseUrl + testimonial.img.replace(/\\/g, "/")
+          : null,
+      };
+    });
+
+    return apiResponse.successResponseWithData(
+      res,
+      "Testimonials retrieved successfully",
+      testimonialsWithBaseUrl
+    );
+  } catch (error) {
+    console.error("Get testimonials failed", error);
+    return apiResponse.ErrorResponse(res, "Get testimonials failed");
+  }
+};
 exports.isActiveStatus = async (req, res) => {
   try {
     const { id } = req.params;

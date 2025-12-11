@@ -4,6 +4,7 @@ const { validateInfrastructure, validateInfrastructureId } = require('../validat
 const {
   addInfrastructure,
   updateInfrastructure,
+  getInfrastructureWebsite,
   getInfrastructure,
   isActiveStatus,
   isDeleteStatus
@@ -14,7 +15,7 @@ const router = express.Router();
 
 router.post('/create-infrastructure', upload.single('img'), authenticateToken, validateInfrastructure, addInfrastructure);
 router.put('/update-infrastructure/:id', upload.single('img'), authenticateToken, validateInfrastructure, validateInfrastructureId, updateInfrastructure);
-router.get('/get-infrastructure', getInfrastructure);
+router.get('/get-infrastructure', getInfrastructureWebsite);
 router.get('/find-infrastructure', authenticateToken, getInfrastructure);
 router.put('/isactive-infrastructure/:id', authenticateToken, validateInfrastructureId, isActiveStatus);
 router.delete('/isdelete-infrastructure/:id', authenticateToken, validateInfrastructureId, isDeleteStatus);

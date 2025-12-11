@@ -4,6 +4,7 @@ const { validateTestimonial, validateTestimonialId } = require('../validations/t
 const {
   addTestimonial,
   updateTestimonial,
+  getWebTestimonials,
   getTestimonials,
   isActiveStatus,
   isDeleteStatus
@@ -14,8 +15,8 @@ const router = express.Router();
 
 router.post('/create-testimonials', upload.single('img'), authenticateToken, validateTestimonial, addTestimonial);
 router.put('/update-testimonials/:id', upload.single('img'), authenticateToken, validateTestimonial, validateTestimonialId, updateTestimonial);
-router.get('/get-testimonials', getTestimonials);
-router.get('/find-testimonials', authenticateToken, getTestimonials);
+router.get('/get-web-testimonials', getWebTestimonials);
+router.get('/list-testimonials', authenticateToken, getTestimonials);
 router.put('/isactive-testimonial/:id', authenticateToken, validateTestimonialId, isActiveStatus);
 router.delete('/isdelete-testimonial/:id', authenticateToken, validateTestimonialId, isDeleteStatus);
 

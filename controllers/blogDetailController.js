@@ -61,7 +61,31 @@ exports.updateBlogDetail = async (req, res) => {
     return apiResponse.ErrorResponse(res, "Update blog details failed");
   }
 };
+exports.getWebBlogDetails = async (req, res) => {
+  try {
+    const blogDetails = await BlogDetail.findAll({
+      where: { isDelete: 0, isActive:1 },
+      order: [["createdAt", "DESC"]],
+    });
 
+    // Base URL for images
+    const baseUrl = `${process.env.SERVER_PATH}`;
+
+    const blogDetailsWithBaseUrl = blogDetails.map((blogDetail) => ({
+      ...blogDetail.toJSON(), // Convert Sequelize instance to plain object
+      img: blogDetail.img ? baseUrl + blogDetail.img.replace(/\\/g, "/") : null,
+    }));
+
+    return apiResponse.successResponseWithData(
+      res,
+      "blogDetails retrieved successfully",
+      blogDetailsWithBaseUrl
+    );
+  } catch (error) {
+    console.error("Get blogDetails failed", error);
+    return apiResponse.ErrorResponse(res, "Get blogDetails failed");
+  }
+};
 
 exports.getBlogDetails = async (req, res) => {
   try {
